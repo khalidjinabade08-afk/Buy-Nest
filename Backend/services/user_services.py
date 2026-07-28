@@ -1,0 +1,104 @@
+from models.user import User
+from models.OTP import OTP
+from utils.otp import generate_otp
+from utils.email import send_otp_email
+from database.db import db
+from werkzeug.security import generate_password_hash
+from utils.response import success_response, error_response
+
+
+def Register(data):
+    try:
+        name = data.get("name")
+        email = data.get("email")
+        password = data.get("password")
+        role = data.get("role")
+
+        if not all([name, email, password, role]):
+            return error_response("All fields are required.", 400)
+
+        name = name.lower()
+        email = email.lower()
+
+        if User.query.filter_by(name=name).first():
+            return error_response("Name already exists.", 400)
+
+        if User.query.filter_by(email=email).first():
+            return error_response("Email already exists.", 400)
+
+        if role not in ["seller", "customer"]:
+            return error_response("Invalid role.", 400)
+
+        otp = generate_otp()
+
+        old_otp = OTP.query.filter_by(email=email).first()
+
+        if old_otp:
+            db.session.delete(old_otp)
+            db.session.commit()
+
+        otp_data = OTP(
+            name=name,
+            email=email,
+            password=generate_password_hash(password),
+            role=role,
+            otp=otp
+        )
+
+        db.session.add(otp_data)
+        db.session.commit()
+
+        send_otp_email(email, otp)
+
+        return success_response(
+            "OTP sent successfully.",
+            {
+                "email": email
+            },
+            200
+        )
+
+    except Exception as e:
+        db.session.rollback()
+        return error_response(str(e), 500)
+    
+def VerifyOTPService(data):
+    try:
+        email = data.get("email")
+        submitted_otp = data.get("otp")
+
+        if not all([email, submitted_otp]):
+            return error_response("Email and OTP are required.", 400)
+
+        email = email.lower()
+
+        otp_record = OTP.query.filter_by(email=email, otp=submitted_otp).first()
+
+        if not otp_record:
+            return error_response("Invalid OTP or Email.", 400)
+
+        if User.query.filter_by(email=email).first():
+            return error_response("User already exists.", 400)
+
+        new_user = User(
+            name=otp_record.name,
+            email=otp_record.email,
+            password=otp_record.password, 
+            role=otp_record.role
+        )
+
+        db.session.add(new_user)
+
+        db.session.delete(otp_record)
+        
+        db.session.commit()
+
+        return success_response(
+            "Registration successful! User verified and created.",
+            {"email": new_user.email, "role": new_user.role},
+            201
+        )
+
+    except Exception as e:
+        db.session.rollback()
+        return error_response(str(e), 500)
