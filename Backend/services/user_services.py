@@ -1,9 +1,11 @@
+from flask import session
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from database.db import db
 from models.user import User
 from models.OTP import OTP
 from utils.otp import generate_otp
 from utils.email import send_otp_email
-from database.db import db
-from werkzeug.security import generate_password_hash
 from utils.response import success_response, error_response
 
 
@@ -32,7 +34,6 @@ def Register(data):
         otp = generate_otp()
 
         old_otp = OTP.query.filter_by(email=email).first()
-
         if old_otp:
             db.session.delete(old_otp)
             db.session.commit()
@@ -42,7 +43,7 @@ def Register(data):
             email=email,
             password=generate_password_hash(password),
             role=role,
-            otp=otp
+            otp=str(otp)
         )
 
         db.session.add(otp_data)
@@ -52,25 +53,25 @@ def Register(data):
 
         return success_response(
             "OTP sent successfully.",
-            {
-                "email": email
-            },
+            {"email": email},
             200
         )
 
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), 500)
-    
+
+
 def VerifyOTPService(data):
     try:
         email = data.get("email")
         submitted_otp = data.get("otp")
 
-        if not all([email, submitted_otp]):
+        if not email or not submitted_otp:
             return error_response("Email and OTP are required.", 400)
 
         email = email.lower()
+        submitted_otp = str(submitted_otp).strip()
 
         otp_record = OTP.query.filter_by(email=email, otp=submitted_otp).first()
 
@@ -88,15 +89,49 @@ def VerifyOTPService(data):
         )
 
         db.session.add(new_user)
-
         db.session.delete(otp_record)
-        
         db.session.commit()
 
         return success_response(
             "Registration successful! User verified and created.",
             {"email": new_user.email, "role": new_user.role},
             201
+        )
+
+    except Exception as e:
+        db.session.rollback()
+        return error_response(str(e), 500)
+
+
+def loging(data):
+    try:
+        email = data.get("email")
+        password = data.get("password")
+
+        if not email or not password:
+            return error_response("Email and password are required.", 400)
+
+        email = email.lower()
+
+        currect_user = User.query.filter_by(email=email).first()
+
+        if not currect_user:
+            return error_response("Email not found.", 400)
+
+        if not check_password_hash(currect_user.password, password):
+            return error_response("Invalid Password.", 401)
+
+        session["user_id"] = currect_user.id
+        session["role"] = currect_user.role
+
+        return success_response(
+            "Login Successful",
+            {
+                "id": currect_user.id,
+                "name": currect_user.name,
+                "role": currect_user.role
+            },
+            200
         )
 
     except Exception as e:

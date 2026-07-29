@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
-from services.user_services import Register, VerifyOTPService
+from services.user_services import Register, VerifyOTPService, loging
 
 auth_routes = Namespace("Admin API", description="Authentication APIs")
 
@@ -23,6 +23,14 @@ verify_otp_model = auth_routes.model(
     },
 )
 
+loging_model = auth_routes.model(
+    "Login",
+    {
+        "email": fields.String(required=True, description="Registered email"),
+        "password": fields.String(required=True, description="Password")
+    },
+)
+
 # ----------------- ROUTES -----------------
 
 # Register Route
@@ -40,3 +48,11 @@ class verify_otp(Resource):
     def post(self):
         data = request.get_json()
         return VerifyOTPService(data)
+    
+# Loging Route
+@auth_routes.route("/loging")
+class UserLoging(Resource):
+    @auth_routes.expect(loging_model, validate=True)
+    def post(self):
+        data = request.get_json()
+        return loging(data)

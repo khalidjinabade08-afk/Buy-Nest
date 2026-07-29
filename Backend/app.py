@@ -17,8 +17,8 @@ from routes.user_routes import auth_routes
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY")
 app.config.from_object(ConfigClass)
+app.secret_key = os.getenv("SECRET_KEY")
 
 db.init_app(app)
 mail.init_app(app)
