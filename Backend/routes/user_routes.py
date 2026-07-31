@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
-from services.user_services import Register, VerifyOTPService, loging
+from services.user_services import Register, VerifyOTPService, loging, DeleteUser
 
 auth_routes = Namespace("Admin API", description="Authentication APIs")
 
@@ -56,3 +56,9 @@ class UserLoging(Resource):
     def post(self):
         data = request.get_json()
         return loging(data)
+    
+# Delete Route
+@auth_routes.route("/delete/<int:user_id>")
+class deleteUser(Resource):
+    def delete(self, user_id):
+        return DeleteUser(user_id)

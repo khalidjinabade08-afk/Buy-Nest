@@ -137,3 +137,18 @@ def loging(data):
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), 500)
+    
+def DeleteUser(user_id):
+    try:
+        current_user = User.query.get(user_id)
+        
+        if not current_user:
+            return error_response("Admin not found")
+        
+        db.session.delete(current_user)
+        db.session.commit()
+        return success_response("Admin deleted", 404)
+    
+    except Exception as e:
+        db.session.rollback()
+        return error_response(str(e))
