@@ -143,12 +143,58 @@ def DeleteUser(user_id):
         current_user = User.query.get(user_id)
         
         if not current_user:
-            return error_response("Admin not found")
+            return error_response("User not found")
         
         db.session.delete(current_user)
         db.session.commit()
-        return success_response("Admin deleted", 404)
+        return success_response("User deleted", 404)
     
     except Exception as e:
         db.session.rollback()
+        return error_response(str(e))
+    
+def Show_all(user_id):
+    try:
+        current_id = User.query.get(user_id)
+        
+        if not current_id:
+            return error_response("User id not Found")
+        
+        all_users = User.query.all()
+        
+        user_list = []
+        for user in all_users:
+            user_list.append({
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "role": user.role,
+            })
+            
+        return success_response(
+            "All users fetched successfully",
+            user_list
+        )
+        
+    except Exception as e:
+        return error_response(str(e), 500)
+    
+def profile(user_id):
+    try:
+        target_user = User.query.get(user_id)
+        
+        if not target_user:
+            return error_response("User not found.", 404)
+            
+        return success_response(
+            "User found successfully.",
+            {
+                "id": target_user.id,
+                "name": target_user.name,
+                "email": target_user.email,
+                "role": target_user.role
+            },
+            200
+        )
+    except Exception as e:
         return error_response(str(e))

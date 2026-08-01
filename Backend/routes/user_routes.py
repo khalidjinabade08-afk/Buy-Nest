@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
-from flask import request
-from services.user_services import Register, VerifyOTPService, loging, DeleteUser
+from flask import request, session, Flask
+from services.user_services import Register, VerifyOTPService, loging, DeleteUser, Show_all, profile
 
 auth_routes = Namespace("Admin API", description="Authentication APIs")
 
@@ -48,7 +48,7 @@ class verify_otp(Resource):
     def post(self):
         data = request.get_json()
         return VerifyOTPService(data)
-    
+
 # Loging Route
 @auth_routes.route("/loging")
 class UserLoging(Resource):
@@ -62,3 +62,18 @@ class UserLoging(Resource):
 class deleteUser(Resource):
     def delete(self, user_id):
         return DeleteUser(user_id)
+    
+# Show all Route
+@auth_routes.route("/Users") 
+class AllUsersList(Resource):
+    def get(self):
+        user_id = session.get("user_id")
+        if not user_id:
+            return {"status": "error", "message": "Unauthorized. Please log in first."}, 401
+        return Show_all(user_id)
+   
+# show profile Route
+@auth_routes.route("/find/<int:user_id>")
+class GetUserById(Resource):
+    def get(self, user_id):
+        return profile(user_id) 
