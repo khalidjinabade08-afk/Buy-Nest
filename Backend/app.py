@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_restx import Api
+from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 
@@ -19,6 +20,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config.from_object(ConfigClass)
 app.secret_key = os.getenv("SECRET_KEY")
+CORS(app)
 
 db.init_app(app)
 mail.init_app(app)

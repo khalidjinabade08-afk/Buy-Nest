@@ -9,3 +9,4 @@ Numpy
 matplotlib
 flask_mail
 pymysql
+flask-cors
