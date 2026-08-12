@@ -70,13 +70,14 @@ def VerifyOTPService(data):
         if not email or not submitted_otp:
             return error_response("Email and OTP are required.", 400)
 
-        email = email.lower()
+        email = email.lower().strip()
         submitted_otp = str(submitted_otp).strip()
 
         otp_record = OTP.query.filter_by(email=email, otp=submitted_otp).first()
 
         if not otp_record:
             return error_response("Invalid OTP or Email.", 400)
+        
 
         if User.query.filter_by(email=email).first():
             return error_response("User already exists.", 400)

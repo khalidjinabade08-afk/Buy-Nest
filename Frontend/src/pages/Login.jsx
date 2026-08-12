@@ -41,6 +41,7 @@ const Loging = () => {
             setError("Unable to connect to server.")
         }
     };
+    
   return (
     <>
       <div className="min-h-screen flex items-center justify-center bg-[#F8F7F4] p-4">

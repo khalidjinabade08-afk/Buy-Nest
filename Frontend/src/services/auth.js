@@ -42,3 +42,23 @@ export const loginUser = async (loginData) =>{
         data
     };
 };
+
+export const VerifyOtp = async (otpData) => {
+    const response = await fetch(`${API_URL}/auth/verify-otp`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(otpData)
+        }
+    );
+
+    const data = await response.json();
+    return  {
+        response,
+        data
+    }
+}
