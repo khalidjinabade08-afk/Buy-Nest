@@ -34,7 +34,7 @@ loging_model = auth_routes.model(
 # ----------------- ROUTES -----------------
 
 # Register Route
-@auth_routes.route("/register")
+@auth_routes.route("/register", methods=['POST'])
 class register(Resource):
     @auth_routes.expect(register_model, validate=True)
     def post(self):
@@ -50,7 +50,7 @@ class verify_otp(Resource):
         return VerifyOTPService(data)
 
 # Loging Route
-@auth_routes.route("/loging")
+@auth_routes.route("/login", methods=['POST'])
 class UserLoging(Resource):
     @auth_routes.expect(loging_model, validate=True)
     def post(self):

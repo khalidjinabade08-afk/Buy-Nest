@@ -32,9 +32,17 @@ const Loging = () => {
         }try{
             const {response, data} = await loginUser(formData);
             if (response.ok){
-                navigate("/dashboard")
+                const role = data.data.role;
+
+                if (role === "seller"){
+                    navigate("/seller");
+                } else if (role === "customer"){
+                    navigate("/customer");
+                } else {
+                    setError("Invalid user role.");
+                }
             }else{
-                setError(data.message);
+                setError(data.message || "Invalid email or password");
             }
         } catch (error){
             console.error(error)

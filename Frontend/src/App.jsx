@@ -1,22 +1,22 @@
 import "./App.css";
-import {Routes, Route} from "react-router-dom";
+import {Routes, Route, Navigate ,BrowserRouter} from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import OTP_page from "./pages/OTP_page";
+import Customer from "./pages/Customer";
+import Seller from "./pages/Seller";
 
 function App() {
   return (
-    <>
-    {/* <OTP_page/> */}
+    <BrowserRouter>
       <Routes>
-        {/* <Route path="/" element={<OTP_page />}/> */}
-        <Route path="/" element={<Login />}/>
+        <Route path="/" element={<Navigate to="/Login" replace/>}/>
         <Route path="/login" element={<Login />}/>
         <Route path="/register" element={<Register />}/>
-        {/* <Route path="/dashboard" element={<Dashboard />}/> */}
+        <Route path="/seller" element={<Seller />}/>
+        <Route path="/customer" element={<Customer/>}/>
       </Routes>
       
-    </>
+    </BrowserRouter>
   );
 }
 

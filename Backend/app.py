@@ -20,7 +20,17 @@ load_dotenv()
 app = Flask(__name__)
 app.config.from_object(ConfigClass)
 app.secret_key = os.getenv("SECRET_KEY")
-CORS(app)
+CORS(
+    app,
+    resources={
+        r"/auth/*":{
+            "origins":["http://localhost:5173"]
+        }
+    },
+    supports_credentials=True,
+    methods=["GET","POST","PUT","DELETE","OPTIONS"],
+    allow_headers=["Content-Type","Authorization"]
+    )
 
 db.init_app(app)
 mail.init_app(app)

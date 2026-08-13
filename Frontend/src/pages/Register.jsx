@@ -76,7 +76,9 @@ const Register = () => {
 
             if (response.ok){
                 setShowOtp(false);
-                navigate("/login");
+                setOtp("");
+                setOtpError("");
+                navigate("/login", {replace: true})
             }else{
                 setOtpError(data.message || "Invalid OTP.")
             }

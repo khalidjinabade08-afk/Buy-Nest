@@ -22,11 +22,11 @@ def Register(data):
         name = name.lower()
         email = email.lower()
 
-        if User.query.filter_by(name=name).first():
-            return error_response("Name already exists.", 400)
+        # if User.query.filter_by(name=name).first():
+        #     return error_response("Name already exists.", 400)
 
-        if User.query.filter_by(email=email).first():
-            return error_response("Email already exists.", 400)
+        # if User.query.filter_by(email=email).first():
+        #     return error_response("Email already exists.", 400)
 
         if role not in ["seller", "customer"]:
             return error_response("Invalid role.", 400)
@@ -79,8 +79,8 @@ def VerifyOTPService(data):
             return error_response("Invalid OTP or Email.", 400)
         
 
-        if User.query.filter_by(email=email).first():
-            return error_response("User already exists.", 400)
+        # if User.query.filter_by(email=email).first():
+        #     return error_response("User already exists.", 400)
 
         new_user = User(
             name=otp_record.name,
