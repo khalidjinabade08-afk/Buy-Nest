@@ -61,7 +61,6 @@ def Register(data):
         db.session.rollback()
         return error_response(str(e), 500)
 
-
 def VerifyOTPService(data):
     try:
         email = data.get("email")
@@ -103,7 +102,6 @@ def VerifyOTPService(data):
         db.session.rollback()
         return error_response(str(e), 500)
 
-
 def loging(data):
     try:
         email = data.get("email")
@@ -121,6 +119,12 @@ def loging(data):
 
         if not check_password_hash(currect_user.password, password):
             return error_response("Invalid Password.", 401)
+        
+        if currect_user.status == "blocked":
+            return error_response("Your account has been blocked by admin.", 403)
+        
+        if currect_user.status == "inactive":
+            return error_response("Your account is inactive.", 403)
 
         session["user_id"] = currect_user.id
         session["role"] = currect_user.role
@@ -138,7 +142,69 @@ def loging(data):
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), 500)
+
+def logout():
+    user_id = session.get("user_id")
     
+    if not user_id:
+        return{
+            "message": "user is not logged in"
+        }, 401
+    
+    session.clear()
+    return{
+        "message": "Logout seccessful"
+    }, 200
+ 
+def update_profile(user_id, data):
+    user = User.query.get(user_id)
+    if not user:
+        return{
+            "message": "User not found"
+        }, 404
+        
+    if "name" in data:
+        name = data.get("name", "").strip()
+        
+        if not name:
+            return{
+                "measage": "Name cannot be empty"
+            }, 400
+            
+            user.name = name
+            
+        if "email" in data:
+            email = data.get("email", "").strip().lower()
+            
+            if not email:
+                return{
+                    "message": "Email cannot be empty"
+                }, 400
+                
+            existing_user = User.query.filter(
+                User.email == email,
+                User.id != user_id
+            ).first()
+            
+            if existing_user:
+                return{
+                    "message": "Email already exists"
+                }, 409
+                
+            user.email = email
+            
+            db.session.commit()
+            
+            return{
+                "message": "Profile updated successfully",
+                "user":{
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email,
+                    "role": user.role
+                }
+            }, 200
+
 def DeleteUser(user_id):
     try:
         current_user = User.query.get(user_id)

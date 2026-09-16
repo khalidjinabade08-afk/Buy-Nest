@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request, session, Flask
-from services.user_services import Register, VerifyOTPService, loging, DeleteUser, Show_all, profile
+from services.user_services import Register, VerifyOTPService, loging, logout, update_profile, DeleteUser, Show_all, profile
 
 auth_routes = Namespace("Admin API", description="Authentication APIs")
 
@@ -13,14 +13,14 @@ register_model = auth_routes.model(
         "email": fields.String(required=True, description="email"),
         "password": fields.String(required=True, description="password"),
         "role": fields.String(required=True, description="admin/customer")   
-    },
+    }
 )
 verify_otp_model = auth_routes.model(
     "VerifyOTP",
     {
         "email": fields.String(required=True, description="Registered email"),
         "otp": fields.String(required=True, description="6-digit OTP code")
-    },
+    }
 )
 
 loging_model = auth_routes.model(
@@ -28,7 +28,15 @@ loging_model = auth_routes.model(
     {
         "email": fields.String(required=True, description="Registered email"),
         "password": fields.String(required=True, description="Password")
-    },
+    }
+)
+
+update_profile_model = auth_routes.model(
+    "UpdateProfile",
+    {
+        "name": fields.String(required=False, description="New name"),
+        "email": fields.String(required=False, description="New email")
+    }
 )
 
 # ----------------- ROUTES -----------------
@@ -56,7 +64,40 @@ class UserLoging(Resource):
     def post(self):
         data = request.get_json()
         return loging(data)
-    
+
+# logout
+@auth_routes.route("/logout")
+class LogoutRoute(Resource):
+    def post(self):
+        user_id = session.get("user_id")
+        
+        if not user_id:
+            return{
+                "message": "Please loging first"
+            }, 401
+        return logout()
+
+@auth_routes.route("/profile/update")
+class UpdateProfileRoute(Resource):
+    @auth_routes.expect(update_profile_model)
+    def put(self):
+
+        user_id = session.get("user_id")
+
+        if not user_id:
+            return {
+                "message": "Please login first"
+            }, 401
+
+        data = request.get_json()
+
+        if not data:
+            return {
+                "message": "No data provided"
+            }, 400
+
+        return update_profile(user_id, data)
+
 # Delete Route
 @auth_routes.route("/delete/<int:user_id>")
 class deleteUser(Resource):
