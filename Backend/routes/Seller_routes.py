@@ -128,10 +128,10 @@ class UpdateSeller_Route(Resource):
 class UpdateSellerStatus(Resource):
     @seller_routes.expect(Seller_status_model)
     def put(self, seller_id):
-        if session.get("role") != "admin":
-            return {
-                "message": "Admin access required"
-            }, 403
+        # if session.get("role") != "admin":
+        #     return {
+        #         "message": "Admin access required"
+        #     }, 403
             
         data = Seller_status_model.parse_args()
         

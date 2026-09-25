@@ -12,10 +12,14 @@ from extensions import mail
 from models.user import User
 from models.OTP import OTP
 from models.Sellers import Seller
+from models.categories import Category
+from models.Product import Product
 
 # Routes
 from routes.user_routes import auth_routes
 from routes.Seller_routes import seller_routes
+from routes.categories_routes import category_routes
+from routes.product_routes import product_routes
 
 load_dotenv()
 
@@ -47,6 +51,8 @@ api = Api(
 
 api.add_namespace(auth_routes, path="/auth")
 api.add_namespace(seller_routes, path="/seller")
+api.add_namespace(category_routes, path="/category")
+api.add_namespace(product_routes, path="/product")
 
 with app.app_context():
     db.create_all()

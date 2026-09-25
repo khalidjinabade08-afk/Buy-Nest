@@ -11,7 +11,7 @@ class Seller(db.Model):
     shop_logo = db.Column(db.String(250), nullable=True)
     shop_description = db.Column(db.String(500), nullable=True)
     shop_address = db.Column(db.String(250), nullable=True)
-    status = db.Column(db.String(250), default="pending")
+    status = db.Column(db.String(250), default="approved")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
